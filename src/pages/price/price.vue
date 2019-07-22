@@ -94,7 +94,7 @@
 
 <script>
 import Util from '../../libs/utils'
-const storeKey = 'exchangeRatw'
+const storeKey = 'exchangeRate'
 let storeData
 
 
@@ -117,6 +117,7 @@ if(storeData && (+new Date() - storeData.ts > 60 * 60 * 4)){
         processed.ts = +new Date()
         console.log(processed)
 
+        storeData = processed
         localStorage.setItem(storeKey,JSON.stringify(processed))
     }).catch(() => {
         console.log('汇率接口出错')
@@ -196,6 +197,14 @@ export default {
         padding: 20px;
     }
     .el-form{
-        width: 470px;
+        width: 100%;
+        max-width: 460px;
+    }
+
+    .el-radio{
+        margin-bottom: 15px;
+    }
+    .el-radio-group{
+        margin-bottom: -15px;
     }
 </style>
