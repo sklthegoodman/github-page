@@ -13,14 +13,25 @@
                 </el-radio-group>
             </el-form-item>
             <el-form-item label="折扣">
-                <el-input v-model="form.discount" placeholder="请输入百分比，比如：30%"></el-input>
+                <el-slider
+                    v-model="form.discount"
+                    @input="slideChange"
+                    show-input
+                >
+                </el-slider>
+                <!-- <el-input v-model="form.discount" placeholder="请输入百分比，比如：30%"></el-input> -->
             </el-form-item>
             <el-form-item label="期望销售利润率">
-                <el-input v-model="form.profit" placeholder="请输入百分比，比如：12%"></el-input>
+                <el-slider
+                    v-model="form.profit"
+                    @input="slideChange"
+                    show-input
+                />
+                <!-- <el-input v-model="form.profit" placeholder="请输入百分比，比如：12%"></el-input> -->
             </el-form-item>
             <el-form-item>
                 <el-button type="primary" @click="onSubmit">确认</el-button>
-                <el-button @click="onClear">清空</el-button>
+                <el-button @click="onClear">重置</el-button>
             </el-form-item>
         </el-form>
 
@@ -29,6 +40,31 @@
                 :data="tableData"
                 style="width: 100%"
             >
+                <el-table-column
+                    prop="priceWithoutDiscount"
+                    label="挂单价"
+                >
+                </el-table-column>
+                <el-table-column
+                    prop="price"                        
+                    label="最终销售价"
+                >
+                </el-table-column>
+                <el-table-column
+                    prop="income"                        
+                    label="收入"
+                >
+                </el-table-column>
+                <el-table-column
+                    prop="profit"
+                    label="利润"
+                >
+                </el-table-column>
+                <el-table-column
+                    prop="profitInCNY"
+                    label="利润(人民币)"
+                >
+                </el-table-column>
                 <el-table-column
                     label="平台费用"
                 >
@@ -60,31 +96,6 @@
                         prop="tail"                        
                         label="尾程"
                     ></el-table-column>
-                </el-table-column>
-                <el-table-column
-                    prop="priceWithoutDiscount"
-                    label="挂单价"
-                >
-                </el-table-column>
-                <el-table-column
-                    prop="price"                        
-                    label="最终销售价"
-                >
-                </el-table-column>
-                <el-table-column
-                    prop="income"                        
-                    label="收入"
-                >
-                </el-table-column>
-                <el-table-column
-                    prop="profit"
-                    label="利润"
-                >
-                </el-table-column>
-                <el-table-column
-                    prop="profitInCNY"
-                    label="利润(人民币)"
-                >
                 </el-table-column>
             </el-table>
         </div>
@@ -131,8 +142,8 @@ export default {
             form: {
                 cost: '30',
                 sellFee: '0.1',
-                discount: '30%',
-                profit:'12%',
+                discount: 30,
+                profit:12,
             },
             tableData: []
         }
@@ -143,23 +154,17 @@ export default {
                 rate = storeData.rates.JPY,
                 cost = +me.form.cost * rate,
                 sellFee = +me.form.sellFee,
-                discount = +me.form.discount.replace('%','') / 100,
-                profit = +me.form.profit.replace('%','') / 100,
+                discount = +me.form.discount / 100,
+                profit = +me.form.profit / 100,
                 packFee = 4,
                 headRange = 4,
                 tailRange = 220,
                 logisticsFee = packFee * rate + headRange * rate + tailRange
 
-                console.log(logisticsFee)
-                console.log(logisticsFee/rate)
-                console.log(rate)
-
             //计算
             let priceWithoutDiscount = (logisticsFee + cost)/ ((1 - profit) * (0.99 - 0.99 * discount - sellFee)),
                 price = priceWithoutDiscount * (1 - discount),
                 income = price - priceWithoutDiscount * sellFee - 0.01 * price
-            console.log(priceWithoutDiscount)
-            console.log(price)
 
             me.tableData = [
                 {
@@ -181,11 +186,14 @@ export default {
             let me = this
             me.tableData = []
             me.form = {
-                cost: '',
+                cost: '30',
                 sellFee: '0.1',
-                discount: '',
-                profit:'',
+                discount: 30,
+                profit:12,
             }
+        },
+        slideChange(){
+            this.onSubmit()
         }
     }
 }
@@ -198,7 +206,7 @@ export default {
     }
     .el-form{
         width: 100%;
-        max-width: 460px;
+        max-width: 600px;
     }
 
     .el-radio{
