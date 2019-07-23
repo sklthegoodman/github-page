@@ -13,7 +13,7 @@ module.exports = {
     pages: {
         priceCalculate: {
             entry: 'src/pages/price/price.js',
-            // template: 'src/template/template.html',
+            template: 'src/template/template.html',
             title: '趣天价格计算',
             filename: path.resolve(templateDir, 'price.html')
         }
