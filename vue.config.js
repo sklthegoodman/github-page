@@ -16,6 +16,12 @@ module.exports = {
             template: 'src/template/template.html',
             title: '趣天价格计算',
             filename: path.resolve(templateDir, 'price.html')
+        },
+        cvsGenerator:{
+            entry:'src/pages/handle_cvs/cvs.js',
+            template: 'src/template/template.html',
+            title: 'cvs处理',
+            filename: path.resolve(templateDir, 'cvs.html')
         }
     }
 }
