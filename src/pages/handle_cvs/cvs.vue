@@ -1,88 +1,138 @@
 <template>
     <div>
-        <div class="upload">
-            <el-upload
-                action="https://jsonplaceholder.typicode.com/posts/"
-                :on-preview="handlePreview"
-                :on-remove="handleRemove"
-                :before-remove="beforeRemove"
-                :on-success="onSuccess"
-                multiple
-                :limit="3"
-                :on-exceed="handleExceed"
-                :file-list="fileList"
-            >
-                <el-button size="small" type="primary">点击上传</el-button>
-                <div slot="tip" class="el-upload__tip">上传CVS文件，将生成三份表单</div>
-            </el-upload>
+        <div 
+            v-if="parseDoneMsg"
+            class="parse-done"
+        >
+            <p class="parse-done__p">
+                {{ parseDoneMsg }}
+            </p>
+            <el-row>
+                <el-button 
+                    type="primary"
+                    @click="reset"
+                >
+                    重新上传文件解析
+                </el-button>
+            </el-row>
+        </div>
+        <div v-else>
+            <div class="choose">
+                <el-radio-group 
+                    v-model="radio"
+                    @change="onChange"
+                >
+                    <el-radio-button 
+                        label="生成Sku"
+                    />
+                    <el-radio-button 
+                        label="开单"
+                    />
+                </el-radio-group>
+            </div>
+            <div class="content">
+                <makeSku 
+                    v-if="radio == types['makeSku']"
+                />
+                <makeOrder
+                    v-if="radio == types['makeOrder']"
+                />
+            </div>
         </div>
     </div>
 </template>
 
 <script>
 import parser from 'json2csv'
+// components
+import makeSku from './components/makeSku'
+import makeOrder from './components/makeOrder'
+import { Enumeration } from '../../libs/utils'
+import Bus from '../../libs/bus'
 const Parser = parser.Parser
 console.log(Parser)
 
 const fields = ['car', 'price', 'color']
 const myCars = [
-  {
-    "car": "Audi",
-    "price": 40000,
-    "color": "blue"
-  }, {
-    "car": "BMW",
-    "price": 35000,
-    "color": "black"
-  }, {
-    "car": "Porsche",
-    "price": 60000,
-    "color": "green"
-  }
+    {
+        "car": "Audi",
+        "price": 40000,
+        "color": "blue"
+    }, {
+        "car": "BMW",
+        "price": 35000,
+        "color": "black"
+    }, {
+        "car": "Porsche",
+        "price": 60000,
+        "color": "green"
+    }
 ]
 
 const json2csvParser = new Parser({ fields })
 const csv = json2csvParser.parse(myCars)
 console.log(csv)
+
+// 组件枚举
+const types = new Enumeration({
+    makeSku:'生成Sku',
+    makeOrder:"开单"
+})
 export default {
+    components:{
+        makeSku,
+        makeOrder
+    },
     data() {
         return {
-            fileList:[]
+            radio:types['makeSku'],
+            types,
+            parseDoneMsg:''
         }
     },
+    created(){
+        const me = this
+
+        Bus.$on('parseDone',(data) => {
+            me.parseDoneMsg = data.msg || '解析完成'
+        })
+    },
     methods: {
-        handleRemove(file, fileList) {
-            console.log(file, fileList);
+        reset(){
+            const me = this
+            me.parseDoneMsg = ''
         },
-        handlePreview(file) {
-            console.log(file);
-        },
-        onSuccess(reponse,file){
-            console.log(file);
-            var reader = new FileReader();
-                reader.readAsText(file.raw, "gb2312");
-                reader.onload = function (evt) {
-                    console.log(evt.target.result.split('\n'))
-                }
-                reader.onerror = function (evt) {
-                    console.log(evt)
-                }
-        },
-        handleExceed(files, fileList) {
-            this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
-        },
-        beforeRemove(file, fileList) {
-            return this.$confirm(`确定移除 ${ file.name }？`);
+        onChange(data){
+            console.log(data)
         }
     }
 }
 </script>
 
 <style lang="less">
-body{
-    font-family: Helvetica Neue,Helvetica,PingFang SC,Hiragino Sans GB,Microsoft YaHei,SimSun,sans-serif;
-}
 *{
     margin: 0;
+}
+body{
+    font-family: Helvetica Neue,Helvetica,PingFang SC,Hiragino Sans GB,Microsoft YaHei,SimSun,sans-serif;
+    padding: 20px;
+}
+
+.choose{
+    text-align: center;
+}
+
+.upload{
+    text-align: center;
+    margin-top: 20px;
+}
+
+.parse-done{
+    text-align: center;
+    padding-top: 100px;
+}
+
+.parse-done__p{
+    margin-bottom: 15px;
 }
 </style>
