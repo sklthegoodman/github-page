@@ -10,6 +10,15 @@ module.exports = {
     productionSourceMap: false,
     outputDir: outputDir,
     publicPath: publicPath,
+    configureWebpack:{
+        resolve:{
+            alias:{
+                '@':path.resolve(__dirname, "src"),
+                '@libs':path.resolve(__dirname, "src/libs"),
+                '@assets':path.resolve(__dirname, "src/assets"),
+            }
+        }   
+    },
     pages: {
         priceCalculate: {
             entry: 'src/pages/price/price.js',
